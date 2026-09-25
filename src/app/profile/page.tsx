@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, ensureDb } from "@/lib/prisma";
 import ProfileEditor from "./profile-editor";
 import SignOutButton from "./sign-out-button";
 
@@ -10,6 +10,8 @@ export default async function ProfilePage() {
   if (!session?.user?.id) {
     redirect("/login");
   }
+
+  await ensureDb();
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },

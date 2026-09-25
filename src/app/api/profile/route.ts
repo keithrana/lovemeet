@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, ensureDb } from "@/lib/prisma";
 
 const updateSchema = z.object({
   bio: z.string().trim().max(500).optional(),
@@ -10,6 +10,8 @@ const updateSchema = z.object({
 });
 
 export async function PATCH(request: Request) {
+  await ensureDb();
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

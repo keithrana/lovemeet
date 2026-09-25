@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { prisma, ensureDb } from "@/lib/prisma";
 
 const signupSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(80),
@@ -11,6 +11,8 @@ const signupSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  await ensureDb();
+
   const body = await request.json().catch(() => null);
   if (!body) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
