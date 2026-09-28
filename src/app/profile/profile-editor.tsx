@@ -17,13 +17,26 @@ export default function ProfileEditor({
     e.preventDefault();
     setStatus("saving");
 
-    const res = await fetch("/api/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, bio }),
-    });
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, bio }),
+      });
 
-    setStatus(res.ok ? "saved" : "error");
+      if (!res.ok) {
+        setStatus("error");
+        return;
+      }
+
+      setStatus("saved");
+      // Give the "Saved." confirmation a moment to be seen before moving on.
+      setTimeout(() => {
+        window.location.href = "/discover";
+      }, 700);
+    } catch {
+      setStatus("error");
+    }
   }
 
   return (
