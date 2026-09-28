@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,19 +17,26 @@ export default function LoginPage() {
     const email = String(form.get("email") ?? "");
     const password = String(form.get("password") ?? "");
 
-    const result = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    });
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
 
-    if (result?.error) {
-      setError("Incorrect email or password.");
+      if (!result || result.error) {
+        setError("Incorrect email or password.");
+        setLoading(false);
+        return;
+      }
+
+      // A full page load (not a client-side transition) guarantees the
+      // browser has the fresh session cookie before /profile checks it.
+      window.location.href = "/profile";
+    } catch {
+      setError("Something went wrong. Please try again.");
       setLoading(false);
-      return;
     }
-
-    router.push("/profile");
   }
 
   return (

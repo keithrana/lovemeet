@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -43,12 +41,14 @@ export default function SignupPage() {
         password: payload.password,
       });
 
-      if (signInResult?.error) {
-        router.push("/login");
+      if (!signInResult || signInResult.error) {
+        window.location.href = "/login";
         return;
       }
 
-      router.push("/profile");
+      // A full page load (not a client-side transition) guarantees the
+      // browser has the fresh session cookie before /profile checks it.
+      window.location.href = "/profile";
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
