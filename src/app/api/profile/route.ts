@@ -28,11 +28,19 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
-  const user = await prisma.user.update({
-    where: { id: session.user.id },
-    data: parsed.data,
-    select: { id: true, name: true, email: true, age: true, bio: true },
-  });
+  try {
+    const user = await prisma.user.update({
+      where: { id: session.user.id },
+      data: parsed.data,
+      select: { id: true, name: true, email: true, age: true, bio: true },
+    });
 
-  return NextResponse.json({ user });
+    return NextResponse.json({ user });
+  } catch (err) {
+    console.error("profile update failed:", err);
+    return NextResponse.json(
+      { error: "We couldn't save your changes right now. Please try again in a moment." },
+      { status: 503 },
+    );
+  }
 }
