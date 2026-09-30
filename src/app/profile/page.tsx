@@ -11,12 +11,24 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  await ensureDb();
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { id: true, name: true, email: true, age: true, bio: true },
-  });
+  let user;
+  try {
+    await ensureDb();
+    user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, name: true, email: true, age: true, bio: true },
+    });
+  } catch (err) {
+    console.error("failed to load profile:", err);
+    return (
+      <main className="mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+        <h1 className="text-2xl font-bold text-brand">Something went wrong</h1>
+        <p className="text-gray-600">
+          We couldn&apos;t load your profile right now. Please try again in a moment.
+        </p>
+      </main>
+    );
+  }
 
   if (!user) {
     redirect("/login");

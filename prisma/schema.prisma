@@ -1,5 +1,9 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" builds for local dev; "rhel-openssl-3.0.x" is the engine
+  // Vercel's serverless functions actually run on. Without both, database
+  // calls crash in production with no useful error message.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
